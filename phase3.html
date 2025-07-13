@@ -2,22 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pop the Balloons 🎈</title>
+  <title>Let's Play a Game 💖</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     body {
       margin: 0;
-      overflow: hidden;
-      background: linear-gradient(to top right, #fff0f5, #ffe6f0);
+      padding: 0;
       font-family: 'Josefin Sans', sans-serif;
+      background: linear-gradient(to top right, #ffe6f2, #fff0f5);
+      overflow: hidden;
       text-align: center;
     }
-
+    .game-box, .balloon-box {
+      display: none;
+    }
+    .start-box {
+      margin-top: 100px;
+    }
     h1 {
-      margin-top: 40px;
+      color: #cc007a;
       font-size: 2rem;
-      color: #cc0066;
+      margin-bottom: 20px;
+    }
+    .btn {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #ff66b2;
+      color: white;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background: #e60073;
+    }
+    .no-btn {
+      position: relative;
+    }
+    .cat {
+      font-size: 2rem;
+      animation: float 2s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
 
     .balloon {
@@ -25,10 +56,9 @@
       width: 80px;
       height: 100px;
       background: radial-gradient(circle, #ff66b2, #e60073);
-      border-radius: 50% 50% 50% 50%;
+      border-radius: 50%;
+      animation: floatUp 8s linear infinite;
       cursor: pointer;
-      animation: float 6s ease-in-out infinite;
-      transition: transform 0.3s;
     }
 
     .balloon::after {
@@ -38,28 +68,26 @@
       left: 50%;
       width: 2px;
       height: 20px;
-      background: #333;
+      background: #555;
     }
 
-    @keyframes float {
-      0% { transform: translateY(0px) translateX(0); }
-      50% { transform: translateY(-40px) translateX(20px); }
-      100% { transform: translateY(0px) translateX(0); }
+    @keyframes floatUp {
+      0% { bottom: -120px; }
+      100% { bottom: 110vh; }
     }
 
     .popped {
-      transform: scale(0);
-      transition: transform 0.3s ease-out;
+      visibility: hidden;
     }
 
     .next-btn {
-      margin-top: 30px;
-      padding: 12px 25px;
+      margin-top: 20px;
+      padding: 10px 25px;
       font-size: 1rem;
-      background: #ff66b2;
-      color: white;
       border: none;
       border-radius: 10px;
+      background: #cc007a;
+      color: white;
       cursor: pointer;
       display: none;
       animation: fadeIn 1s ease;
@@ -73,42 +101,57 @@
 </head>
 <body>
 
-  <h1>Pop All 5 Balloons 🎈 to Continue</h1>
+  <div class="start-box">
+    <h1>Let’s play a game 💖<br>Are you interested?</h1>
+    <button class="btn" onclick="startGame()">Yes 😁</button>
+    <button class="btn no-btn" id="noBtn" onmouseover="moveNo()" onclick="moveNo()">No 🙅‍♀️</button>
+    <div class="cat">😾 Click Yes naaa...</div>
+  </div>
 
-  <button class="next-btn" onclick="goNext()">Continue 💖</button>
+  <div class="balloon-box" id="balloonBox"></div>
+  <button class="next-btn" id="nextBtn" onclick="goNext()">Continue 💘</button>
 
   <audio id="popSound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
 
   <script>
-    const popSound = document.getElementById("popSound");
     let poppedCount = 0;
 
-    function createBalloon(id) {
-      const balloon = document.createElement("div");
-      balloon.className = "balloon";
-      balloon.style.left = Math.random() * 90 + "vw";
-      balloon.style.top = Math.random() * 70 + "vh";
-      balloon.dataset.id = id;
-
-      balloon.onclick = () => {
-        if (!balloon.classList.contains("popped")) {
-          balloon.classList.add("popped");
-          popSound.currentTime = 0;
-          popSound.play();
-          poppedCount++;
-
-          if (poppedCount === 5) {
-            document.querySelector(".next-btn").style.display = "inline-block";
-          }
-        }
-      };
-
-      document.body.appendChild(balloon);
+    function startGame() {
+      document.querySelector(".start-box").style.display = "none";
+      const balloonBox = document.getElementById("balloonBox");
+      balloonBox.style.display = "block";
+      createBalloons();
     }
 
-    // Create 5 balloons
-    for (let i = 1; i <= 5; i++) {
-      createBalloon(i);
+    function moveNo() {
+      const btn = document.getElementById("noBtn");
+      btn.style.position = "absolute";
+      btn.style.top = Math.random() * 80 + "vh";
+      btn.style.left = Math.random() * 80 + "vw";
+    }
+
+    function createBalloons() {
+      const container = document.getElementById("balloonBox");
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          const b = document.createElement("div");
+          b.className = "balloon";
+          b.style.left = Math.random() * 80 + "vw";
+          b.onclick = () => popBalloon(b);
+          container.appendChild(b);
+        }, i * 800); // one-by-one
+      }
+    }
+
+    function popBalloon(balloon) {
+      if (!balloon.classList.contains("popped")) {
+        balloon.classList.add("popped");
+        document.getElementById("popSound").play();
+        poppedCount++;
+        if (poppedCount === 5) {
+          document.getElementById("nextBtn").style.display = "inline-block";
+        }
+      }
     }
 
     function goNext() {
